@@ -1,7 +1,6 @@
 package info.androidhive.cardview;
 
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,8 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -28,28 +25,79 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private AlbumsAdapter adapter;
     private List<Album> albumList;
+    private List<Integer> colorList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Making notification bar transparent
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        changeStatusBarColor();
+        initCollapsingToolbar();
 
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        albumList = new ArrayList<>();
+        adapter = new AlbumsAdapter(this, albumList);
+
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true , getColorList()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+
+        prepareAlbums();
+
+        try {
+            Glide.with(this).load(R.drawable.cover).into((ImageView) findViewById(R.id.backdrop));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<Integer> getColorList(){
+
+        colorList = new ArrayList<>();
+        colorList.add(R.drawable.testing1);
+        colorList.add(R.drawable.testing2);
+        colorList.add(R.drawable.testing3);
+        colorList.add(R.drawable.testing4);
+        colorList.add(R.drawable.testing5);
+        colorList.add(R.drawable.testing6);
+        colorList.add(R.drawable.testing1);
+        colorList.add(R.drawable.testing2);
+        colorList.add(R.drawable.testing3);
+        colorList.add(R.drawable.testing4);
+        colorList.add(R.drawable.testing5);
+        colorList.add(R.drawable.testing6);
+        colorList.add(R.drawable.testing1);
+        colorList.add(R.drawable.testing2);
+        colorList.add(R.drawable.testing3);
+        colorList.add(R.drawable.testing4);
+        colorList.add(R.drawable.testing5);
+        colorList.add(R.drawable.testing6);
+        colorList.add(R.drawable.testing1);
+        colorList.add(R.drawable.testing2);
+        colorList.add(R.drawable.testing3);
+        colorList.add(R.drawable.testing4);
+        colorList.add(R.drawable.testing5);
+        colorList.add(R.drawable.testing6);
+        return colorList;
+
+    }
+    /**
+     * Initializing collapsing toolbar
+     * Will show and hide the toolbar title on scroll
+     */
+    private void initCollapsingToolbar() {
         final CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle(" ");
         AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         appBarLayout.setExpanded(true);
 
+        // hiding & showing the title when toolbar expanded & collapsed
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             boolean isShow = false;
             int scrollRange = -1;
@@ -68,27 +116,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
-        albumList = new ArrayList<>();
-        adapter = new AlbumsAdapter(albumList);
-
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(adapter);
-
-        prepareAlbums();
-
-        try {
-            Glide.with(this).load(R.drawable.cover1).into((ImageView) findViewById(R.id.backdrop));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
+    /**
+     * Adding few albums for testing
+     */
     private void prepareAlbums() {
         int[] covers = new int[]{
                 R.drawable.album1,
@@ -103,27 +135,54 @@ public class MainActivity extends AppCompatActivity {
                 R.drawable.album10,
                 R.drawable.album11};
 
-        for (int i = 0; i < covers.length; i++) {
-            Album a = new Album();
-            a.setName("Album: " + i);
-            a.setThumbnail(covers[i]);
+        Album a = new Album("True Romance", 13, covers[0]);
+        albumList.add(a);
 
-            albumList.add(a);
-        }
+        a = new Album("Xscpae", 8, covers[1]);
+        albumList.add(a);
+
+        a = new Album("Maroon 5", 11, covers[2]);
+        albumList.add(a);
+
+        a = new Album("Born to Die", 12, covers[3]);
+        albumList.add(a);
+
+        a = new Album("Honeymoon", 14, covers[4]);
+        albumList.add(a);
+
+        a = new Album("I Need a Doctor", 1, covers[5]);
+        albumList.add(a);
+
+        a = new Album("Loud", 11, covers[6]);
+        albumList.add(a);
+
+        a = new Album("Legend", 14, covers[7]);
+        albumList.add(a);
+
+        a = new Album("Hello", 11, covers[8]);
+        albumList.add(a);
+
+        a = new Album("Greatest Hits", 17, covers[9]);
+        albumList.add(a);
 
         adapter.notifyDataSetChanged();
     }
 
+    /**
+     * RecyclerView item decoration - give equal margin around grid item
+     */
     public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
         private int spanCount;
         private int spacing;
         private boolean includeEdge;
+        private List<Integer> colorList;
 
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
+        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge , List<Integer> colorList) {
             this.spanCount = spanCount;
             this.spacing = spacing;
             this.includeEdge = includeEdge;
+            this.colorList = colorList;
         }
 
         @Override
@@ -146,22 +205,20 @@ public class MainActivity extends AppCompatActivity {
                     outRect.top = spacing; // item top
                 }
             }
-        }
-    }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                view.setForeground(getResources().getDrawable(colorList.get(position)));
+//                view.setForeground(colorList.get(position));
 
-    private int dpToPx(int dp) {
-        Resources r = getResources();
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
+            }
+        }
+
     }
 
     /**
-     * Making notification bar transparent
+     * Converting dp to pixel
      */
-    private void changeStatusBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-        }
+    private int dpToPx(int dp) {
+        Resources r = getResources();
+        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
     }
 }
