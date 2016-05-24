@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                view.setForeground(getResources().getDrawable(colorList.get(position)));
+                view.setForeground(getResources().getDrawable(colorList.get(position) , null));
 
             }
         }
